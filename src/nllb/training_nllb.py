@@ -19,6 +19,9 @@ parser.add_argument("--model_name", type=str)
 parser.add_argument("--report_to", type=str, default="none")
 parser.add_argument("--dataset", type=str)
 parser.add_argument("--save_steps", type=int, default=10000)
+parser.add_argument("--per_device_train_batch_size", type=int, default=8)
+parser.add_argument("--per_device_eval_batch_size", type=int, default=8)
+parser.add_argument("--gradient_accumulation_steps", type=int, default=8)
 
 args, _ = parser.parse_known_args()
 
@@ -68,9 +71,9 @@ training_args = Seq2SeqTrainingArguments(
     output_dir=args.output_dir,
     evaluation_strategy="epoch",
     learning_rate=5e-5,
-    per_device_train_batch_size=4,
-    per_device_eval_batch_size=4,
-    gradient_accumulation_steps=32,
+    per_device_train_batch_size=args.per_device_train_batch_size,
+    per_device_eval_batch_size=args.per_device_eval_batch_size,
+    gradient_accumulation_steps=args.gradient_accumulation_steps,
     gradient_checkpointing=True,
     # fp16_full_eval=True,
     bf16_full_eval=False,

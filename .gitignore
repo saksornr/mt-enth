@@ -1,5 +1,8 @@
+# file
 *.zip
+*.pyc
+
+# folder
 data/*
 hf_dataset/*
-
-*.pyc
+output/*
