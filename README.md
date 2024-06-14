@@ -1,5 +1,10 @@
 # Machine Translation (TH-EN)
 
+# Clone with token
+```bash
+git clone https://<token>@github.com/huak95/mt-enth.git 
+```
+
 # Dataset
 In this project, used 2 datasets including SCB-1M and OPUS which can be downloaded from [thai2nmt project](https://github.com/vistec-AI/thai2nmt/releases/tag/scb-mt-en-th-2020%2Bmt-opus_v1.0).
 
