@@ -1,0 +1,5 @@
+*.zip
+data/*
+hf_dataset/*
+
+*.pyc
