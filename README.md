@@ -48,3 +48,19 @@ wget -P data/iwslt_2015/ https://raw.githubusercontent.com/vistec-AI/thai2nmt/ma
 
 python src/nllb/eval_nllb.py
 ```
+
+# Using Lanta 
+### Install using Conda
+
+```bash
+ml Mamba
+conda create -p ./env python=3.10 -y
+conda activate ./env
+pip install -r requirements.txt
+```
+
+## Submit Train Model
+
+```bash
+sbatch submit_multinode.sh
+```
