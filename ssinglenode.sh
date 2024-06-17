@@ -39,21 +39,20 @@ export NCCL_TIMEOUT=3600000
 export NCCL_BLOCKING_WAIT=0
 
 accelerate launch \
-    --num_processes $(( 4 * $COUNT_NODE )) \
-    --num_machines $COUNT_NODE \
-    --multi_gpu \
     --mixed_precision bf16 \
-    --machine_rank $SLURM_PROCID \
-    --main_process_ip $MASTER_ADDR \
-    --main_process_port $MASTER_PORT \
+    --num_processes 1 \
+    --num_machines 1 \
+    --dynamo_backend 'no' \
+    --debug \
     src/nllb/training_nllb.py \
         --model_repo facebook/nllb-200-distilled-600M \
-        --epoch 3 \
-        --output_dir checkpoints_5N_en-th_v2 \
+        --epoch 5 \
+        --output_dir checkpoints_toy_1p \
         --model_name nllb-600m-en_th-exp1 \
         --dataset ./hf_dataset/nllb-scb+opus-hf-tokenized-en_th-toy-1p \
-        --per_device_train_batch_size 80 \
-        --per_device_eval_batch_size 96 \
+        --per_device_train_batch_size 128 \
+        --per_device_eval_batch_size 128 \
         --gradient_accumulation_steps 128 \
         --save_steps 100 \
+        --max_length_eval 64 \
         --src_lang en
