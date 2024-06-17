@@ -13,6 +13,7 @@ parser = argparse.ArgumentParser()
 
 parser.add_argument("--model_repo", default='facebook/nllb-200-distilled-600M', type=str)
 parser.add_argument("--batch_size", default=128, type=int)
+parser.add_argument("--max_len", type=int, default=64)
 parser.add_argument("--test_csv", default='test.csv', type=str)
 parser.add_argument("--test_csv_col", default='source', type=str)
 
@@ -36,7 +37,7 @@ def main_pred():
 
         inputs = tokenizer(batch, return_tensors="pt", padding=True).to(device)
 
-        translated_tokens = model.generate(**inputs, forced_bos_token_id=tokenizer.lang_code_to_id["tha_Thai"], max_length=64)
+        translated_tokens = model.generate(**inputs, forced_bos_token_id=tokenizer.lang_code_to_id["tha_Thai"], max_length=args.max_len)
         predictions += tokenizer.batch_decode(translated_tokens, skip_special_tokens=True)
 
     # Check

@@ -10,11 +10,10 @@ device = "cuda" if torch.cuda.is_available() else "cpu"
 parser = argparse.ArgumentParser()
 
 parser.add_argument("--model_repo", default='facebook/nllb-200-distilled-600M', type=str)
-parser.add_argument("--dataset_dir", default='data/scb-mt-en-th-2020+mt-opus-cleaned/', type=str)
 parser.add_argument("--max_len", default=64, type=int)
-parser.add_argument("--num_proc", default=8, type=int)
-parser.add_argument("--batch_size", default=128, type=float)
+parser.add_argument("--batch_size", default=128, type=int)
 parser.add_argument("--src_lang", default='en', type=str)
+parser.add_argument("--csv", default='eval.csv', type=str)
 args = parser.parse_args()
 
 # Load Original Model / Full finetuned model
@@ -45,7 +44,12 @@ with open("data/iwslt_2015/tst2010-2013_th-en.th", "r") as f:
 print(f"th_text: {len(th_text)}, en_text: {len(en_text)}")
 
 # todo
-# input_text = 
+if args.src_lang == 'en':
+    input_text = en_text
+    refer_text = th_text
+elif args.src_lang == 'th':
+    input_text = th_text
+    refer_text = en_text
 
 # prediction
 predictions = []
@@ -60,6 +64,13 @@ for i in tqdm(range(0, len(input_text), batch_size)):
 
 # calculate bleu score
 metric = evaluate.load("sacrebleu")
-en_ref = [[line] for line in en_text]
-eval_result = metric.compute(predictions=predictions, references=en_ref)
+ref = [[line] for line in refer_text]
+eval_result = metric.compute(predictions=predictions, references=ref)
+
+pred_df = pd.DataFrame({
+    'references_en': en_text,
+    'references_th': th_text,
+    'predictions': predictions,
+})
+pred_df.to_csv(args.csv, index=False)
 print(eval_result)
