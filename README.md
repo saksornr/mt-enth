@@ -50,15 +50,17 @@ accelerate launch \
     --debug \
     src/nllb/training_nllb.py \
         --model_repo facebook/nllb-200-distilled-600M \
-        --epoch 3 \
-        --output_dir checkpoints \
+        --epoch 5 \
+        --output_dir checkpoints_toy_1p \
         --model_name nllb-600m-en_th-exp1 \
         --dataset ./hf_dataset/nllb-scb+opus-hf-tokenized-en_th-toy-1p \
-        --per_device_train_batch_size 32 \
-        --per_device_eval_batch_size 48 \
-        --gradient_accumulation_steps 64 \
-        --save_steps 100 \
-        --src_lang en
+        --per_device_train_batch_size 80 \
+        --per_device_eval_batch_size 80 \
+        --gradient_accumulation_steps 80 \
+        --save_steps 50 \
+        --max_length_eval 32 \
+        --src_lang en \
+        --report_to wandb
 ```
 
 # Evaluation
@@ -69,22 +71,37 @@ mkdir data/iwslt_2015/ -p
 wget -P data/iwslt_2015/ https://raw.githubusercontent.com/vistec-AI/thai2nmt/master/iwslt_2015/test/tst2010-2013_th-en.en
 wget -P data/iwslt_2015/ https://raw.githubusercontent.com/vistec-AI/thai2nmt/master/iwslt_2015/test/tst2010-2013_th-en.th
 
-python src/nllb/eval_nllb.py
+# eval
+python src/nllb/eval_nllb.py \
+    --model_repo facebook/nllb-200-distilled-600M \
+    --max_len 64 \
+    --batch_size 128 \
+    --src_lang en \
+    --csv eval.csv
 ```
 
 # Inference 
 ```bash
 # inference
-python inference.py \
+python src/nllb/inference_nllb.py \
     --model_repo facebook/nllb-200-distilled-600M \
-    --batch_size 512
+    --test_csv data/kaggle/test.csv \
+    --batch_size 128 \
+    --max_len 128
+
 
 # tokenize
-python deep_tokenize.py \
+python src/deep_tokenize.py \
     --csv result/nllb-200-distilled-600M/full_pred.csv
 ```
 
-# Using Lanta 
+tokenize env
+```bash
+pip install git+https://github.com/rkcosmos/deepcut.git
+pip install pandarallel==1.6.5
+```
+
+# Using Lanta
 ### Install using Conda
 
 ```bash
