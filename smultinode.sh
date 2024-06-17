@@ -23,6 +23,13 @@ echo hostname = `hostname`
 echo MASTER_ADDR= $MASTER_ADDR
 echo MASTER_PORT= $MASTER_PORT
 
+export PYTHONFAULTHANDLER=1
+export HF_HOME=/home/ck1055/mt-enth/hf/misc
+export HF_DATASETS_CACHE=/home/ck1055/mt-enth/hf/datasets
+export TRANSFORMERS_CACHE=/home/ck1055/mt-enth/hf/models
+export HF_DATASETS_OFFLINE=1
+export TRANSFORMERS_OFFLINE=1
+
 H=`hostname`
 THEID=`echo -e $HOSTNAMES | python -c "import sys;[sys.stdout.write(str(i)) for i,line in enumerate(next(sys.stdin).split(' ')) if line.strip() == '$H'.strip()]"`
 echo THEID=$THEID
@@ -40,10 +47,13 @@ accelerate launch \
     --main_process_ip $MASTER_ADDR \
     --main_process_port $MASTER_PORT \
     src/nllb/training_nllb.py \
-        --epoch 1 \
-        --output_dir output \
-        --model_name nllb-600m-th-en-exp1 \
-        --dataset ./hf_dataset/nllb-scb+opus-hf-tokenized
-        --per_device_train_batch_size 8 \
-        --per_device_eval_batch_size 8 \
-        --gradient_accumulation_steps 8        
+        --model_repo facebook/nllb-200-distilled-600M \
+        --epoch 3 \
+        --output_dir checkpoints_5N_en-th_v2 \
+        --model_name nllb-600m-en_th-exp1 \
+        --dataset ./hf_dataset/nllb-scb+opus-hf-tokenized-en_th-toy-1p \
+        --per_device_train_batch_size 80 \
+        --per_device_eval_batch_size 96 \
+        --gradient_accumulation_steps 128 \
+        --save_steps 100 \
+        --src_lang en

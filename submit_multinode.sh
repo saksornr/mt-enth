@@ -1,11 +1,14 @@
 #!/bin/bash
 #SBATCH -p gpu                          # Specify partition [Compute/Memory/GPU]
-#SBATCH -N 2 -c 16                      # Specify number of nodes and processors per task
-#SBATCH --ntasks-per-node=4		# Specify number of tasks per node
+#SBATCH -N 1 -c 64                      # Specify number of nodes and processors per task
+#SBATCH --ntasks-per-node=1		# Specify number of tasks per node
 #SBATCH --gpus-per-node=4		# Specify total number of GPUs
 #SBATCH -t 1:00:00                      # Specify maximum time limit (hour: minute: second)
-#SBATCH -A lt900502                     # Specify project name
-#SBATCH -J Finetune_MT_2N                  # Specify job name
+#SBATCH -A ck900619                     # Specify project name
+#SBATCH -J W2SLEEP                  # Specify job name
+
+nvidia-smi topo -m
+nvidia-smi
 
 export NCCL_DEBUG=INFO
 export NCCL_SOCKET_IFNAME=hsn 
