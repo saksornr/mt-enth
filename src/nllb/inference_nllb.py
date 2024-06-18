@@ -37,7 +37,7 @@ def main_pred():
 
         inputs = tokenizer(batch, return_tensors="pt", padding=True).to(device)
 
-        translated_tokens = model.generate(**inputs, forced_bos_token_id=tokenizer.lang_code_to_id["tha_Thai"], max_length=args.max_len)
+        translated_tokens = model.generate(**inputs, forced_bos_token_id=tokenizer.lang_code_to_id["tha_Thai"], max_new_tokens=args.max_len, num_beams=4, early_stopping=True)
         predictions += tokenizer.batch_decode(translated_tokens, skip_special_tokens=True)
 
     # Check
@@ -56,8 +56,8 @@ def main():
 
     os.makedirs("result", exist_ok=True)
     os.makedirs(f"result/{model_name}", exist_ok=True)
-    df.to_csv(f'result/{model_name}/full_pred.csv', index=False)
-    df[['id', 'translation']].to_csv(f'result/{model_name}/submission.csv', index=False)
+    df.to_csv(f'result/{model_name}/full_pred.csv', index=False, encoding='utf-8')
+    df[['id', 'translation']].to_csv(f'result/{model_name}/submission.csv', index=False, encoding='utf-8')
     
 if __name__ == "__main__":
     main()
