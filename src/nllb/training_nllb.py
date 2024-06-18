@@ -61,10 +61,10 @@ def compute_metrics(eval_preds):
     preds, labels = eval_preds
     if isinstance(preds, tuple):
         preds = preds[0]
-    decoded_preds = tokenizer.batch_decode(preds, skip_special_tokens=True,)
+    decoded_preds = tokenizer.batch_decode(preds, skip_special_tokens=True, )
 
     labels = np.where(labels != -100, labels, tokenizer.pad_token_id)
-    decoded_labels = tokenizer.batch_decode(labels, skip_special_tokens=True)
+    decoded_labels = tokenizer.batch_decode(labels, skip_special_tokens=True, max_length=args.max_length_eval, truncation=True)
 
     decoded_preds, decoded_labels = postprocess_text(decoded_preds, decoded_labels)
 
@@ -88,7 +88,7 @@ training_args = Seq2SeqTrainingArguments(
     per_device_train_batch_size=args.per_device_train_batch_size,
     per_device_eval_batch_size=args.per_device_eval_batch_size,
     gradient_accumulation_steps=args.gradient_accumulation_steps,
-    gradient_checkpointing=False,
+    gradient_checkpointing=True,
     bf16=True,
     bf16_full_eval=False,
     weight_decay=0.01,

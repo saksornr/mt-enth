@@ -31,7 +31,7 @@ def main():
     
     new_csv = args.csv.replace(".csv", "_tok.csv")
 
-    df.to_csv(new_csv, index=False)
+    df.to_csv(new_csv, index=False, encoding='utf-8')
     
 if __name__ == "__main__":
     main()

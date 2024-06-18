@@ -29,7 +29,11 @@ elif args.src_lang == 'th':
     nllb_tgt_lang = 'eng_Latn'
     translate_direction = "th_en"
 
-model = AutoModelForSeq2SeqLM.from_pretrained(model_repo).to(device)
+model = AutoModelForSeq2SeqLM.from_pretrained(model_repo, 
+                                              max_new_tokens=args.max_len, 
+                                              num_beams=4,
+                                              early_stopping=True,
+                                              ).to(device)
 tokenizer = AutoTokenizer.from_pretrained(model_repo)
 
 # load test data

@@ -17,6 +17,9 @@ unzip -d data/ scb+opus.zip
 kaggle competitions download -c ai-cooking-machine-translation
 unzip -d data/kaggle ai-cooking-machine-translation.zip
 
+# remove kde
+rm -rf data/scb-mt-en-th-2020+mt-opus/mt_opus_kde4.csv
+
 # Extract Unmatch Dataset From Kaggle
 python src/add_unmatch_kaggle.py
 
@@ -24,16 +27,26 @@ python src/add_unmatch_kaggle.py
 python src/clean_text.py data/scb-mt-en-th-2020+mt-opus \
     --unicode_norm NFKC \
     --out_dir data/scb-mt-en-th-2020+mt-opus-cleaned
-```
 
+# Filter data
+python src/filter_text.py data/scb-mt-en-th-2020+mt-opus-cleaned \
+    --out_dir data/scb-mt-en-th-2020+mt-opus-cleaned-filtered \
+    --randomp 0.1 --topw 100
+
+# Remove Unreal Text (from mond)
+python src/remove_unreal_text.py data/scb-mt-en-th-2020+mt-opus-cleaned-filtered \
+    --out_dir data/scb-mt-en-th-2020+mt-opus-cleaned-filtered-rm \
+    --numproc 12
+```
 
 # Tokenized
 ```bash
 # for en-th
 python src/nllb/tokenized_nllb.py \
-    --model_repo facebook/nllb-200-distilled-600M \
+    --model_repo facebook/nllb-200-distilled-1.3B \
+    --dataset_dir data/scb-mt-en-th-2020+mt-opus-cleaned-filtered \
     --max_len 64 \
-    --num_proc 8 \
+    --num_proc 12 \
     --test_size 0.10 \
     --src_lang en 
 ```
@@ -41,24 +54,26 @@ python src/nllb/tokenized_nllb.py \
 # Finetune
 
 ```bash
+# setup deepspeed
+accelerate config 
+
 # for en-th
 accelerate launch \
     --mixed_precision bf16 \
     --num_processes 1 \
     --num_machines 1 \
-    --dynamo_backend 'no' \
     --debug \
     src/nllb/training_nllb.py \
         --model_repo facebook/nllb-200-distilled-600M \
-        --epoch 5 \
-        --output_dir checkpoints_toy_1p \
-        --model_name nllb-600m-en_th-exp1 \
-        --dataset ./hf_dataset/nllb-scb+opus-hf-tokenized-en_th-toy-1p \
-        --per_device_train_batch_size 80 \
-        --per_device_eval_batch_size 80 \
-        --gradient_accumulation_steps 80 \
+        --epoch 4 \
+        --output_dir checkpoints_600M \
+        --model_name nllb-600M-en_th-exp1 \
+        --dataset ./hf_dataset/nllb-scb+opus-hf-tokenized-en_th \
+        --per_device_train_batch_size 64 \
+        --per_device_eval_batch_size 64 \
+        --gradient_accumulation_steps 96 \
         --save_steps 50 \
-        --max_length_eval 32 \
+        --max_length_eval 64 \
         --src_lang en \
         --report_to wandb
 ```
@@ -84,10 +99,10 @@ python src/nllb/eval_nllb.py \
 ```bash
 # inference
 python src/nllb/inference_nllb.py \
-    --model_repo facebook/nllb-200-distilled-600M \
+    --model_repo checkpoints_600M/checkpoint-500-nllb \
     --test_csv data/kaggle/test.csv \
-    --batch_size 128 \
-    --max_len 128
+    --batch_size 64 \
+    --max_len 64
 
 
 # tokenize
